@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <utility>
@@ -265,6 +266,9 @@ class SerializedPageWriter : public PageWriter {
         encryption_buffer_(AllocateBuffer(pool, 0)),
         column_index_builder_(column_index_builder),
         offset_index_builder_(offset_index_builder) {
+    std::cout << ("\n\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=") << std::endl;
+    std::cout << ("TekDatum is in column_writer!!") << std::endl;
+    std::cout << ("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n") << std::endl;
     if (data_encryptor_ != nullptr || meta_encryptor_ != nullptr) {
       InitEncryption();
     }
@@ -273,6 +277,9 @@ class SerializedPageWriter : public PageWriter {
   }
 
   int64_t WriteDictionaryPage(const DictionaryPage& page) override {
+    std::cout << ("\n\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=") << std::endl;
+    std::cout << ("WriteDictionaryPage") << std::endl;
+    std::cout << ("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n") << std::endl;
     int64_t uncompressed_size = page.buffer()->size();
     if (uncompressed_size > std::numeric_limits<int32_t>::max()) {
       throw ParquetException(
@@ -343,6 +350,9 @@ class SerializedPageWriter : public PageWriter {
   }
 
   void Close(bool has_dictionary, bool fallback) override {
+    std::cout << ("\n\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=") << std::endl;
+    std::cout << ("Close") << std::endl;
+    std::cout << ("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n") << std::endl;
     if (meta_encryptor_ != nullptr) {
       UpdateEncryption(encryption::kColumnMetaData);
     }
@@ -361,6 +371,9 @@ class SerializedPageWriter : public PageWriter {
    * Compress a buffer.
    */
   void Compress(const Buffer& src_buffer, ResizableBuffer* dest_buffer) override {
+    std::cout << ("\n\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=") << std::endl;
+    std::cout << ("Compress") << std::endl;
+    std::cout << ("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n") << std::endl;
     DCHECK(compressor_ != nullptr);
 
     // Compress the data
@@ -379,6 +392,9 @@ class SerializedPageWriter : public PageWriter {
   }
 
   int64_t WriteDataPage(const DataPage& page) override {
+    std::cout << ("\n\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=") << std::endl;
+    std::cout << ("WriteDataPage") << std::endl;
+    std::cout << ("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n") << std::endl;
     const int64_t uncompressed_size = page.uncompressed_size();
     if (uncompressed_size > std::numeric_limits<int32_t>::max()) {
       throw ParquetException("Uncompressed data page size overflows INT32_MAX. Size:",
@@ -466,6 +482,9 @@ class SerializedPageWriter : public PageWriter {
   }
 
   void SetDataPageHeader(format::PageHeader& page_header, const DataPageV1& page) {
+    std::cout << ("\n\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=") << std::endl;
+    std::cout << ("SetDataPageHeader") << std::endl;
+    std::cout << ("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n") << std::endl;
     format::DataPageHeader data_page_header;
     data_page_header.__set_num_values(page.num_values());
     data_page_header.__set_encoding(ToThrift(page.encoding()));
@@ -484,6 +503,9 @@ class SerializedPageWriter : public PageWriter {
   }
 
   void SetDataPageV2Header(format::PageHeader& page_header, const DataPageV2& page) {
+    std::cout << ("\n\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=") << std::endl;
+    std::cout << ("SetDataPageV2Header") << std::endl;
+    std::cout << ("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n") << std::endl;
     format::DataPageHeaderV2 data_page_header;
     data_page_header.__set_num_values(page.num_values());
     data_page_header.__set_num_nulls(page.num_nulls());
@@ -509,6 +531,9 @@ class SerializedPageWriter : public PageWriter {
   /// \brief Finish page index builders and update the stream offset to adjust
   /// page offsets.
   void FinishPageIndexes(int64_t final_position) {
+    std::cout << ("\n\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=") << std::endl;
+    std::cout << ("FinishPageIndexes") << std::endl;
+    std::cout << ("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n") << std::endl;
     if (column_index_builder_ != nullptr) {
       column_index_builder_->Finish();
     }
@@ -540,6 +565,9 @@ class SerializedPageWriter : public PageWriter {
   friend class BufferedPageWriter;
 
   void InitEncryption() {
+    std::cout << ("\n\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=") << std::endl;
+    std::cout << ("InitEncryption") << std::endl;
+    std::cout << ("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n") << std::endl;
     // Prepare the AAD for quick update later.
     if (data_encryptor_ != nullptr) {
       data_page_aad_ = encryption::CreateModuleAad(
@@ -554,6 +582,9 @@ class SerializedPageWriter : public PageWriter {
   }
 
   void UpdateEncryption(int8_t module_type) {
+    std::cout << ("\n\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=") << std::endl;
+    std::cout << ("UpdateEncryption") << std::endl;
+    std::cout << ("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n") << std::endl;
     switch (module_type) {
       case encryption::kColumnMetaData: {
         meta_encryptor_->UpdateAad(encryption::CreateModuleAad(
